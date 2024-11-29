@@ -36,7 +36,7 @@
 #define RETRO_TAPPING
 
 #ifdef RGBLIGHT_ENABLE
-// #define WS2812_PIO_USE_PIO1
+#define WS2812_PIO_USE_PIO1
 
 // rgb layers
 // underglow related
