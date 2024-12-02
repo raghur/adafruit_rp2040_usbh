@@ -37,6 +37,9 @@
 
 #ifdef RGBLIGHT_ENABLE
 #define WS2812_PIO_USE_PIO1
+/*
+ * does not help; unchanged value left here for ref
+ * #define RP_DMA_PRIORITY_WS2812 3 */
 
 // rgb layers
 // underglow related
