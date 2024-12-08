@@ -440,7 +440,7 @@ void keyboard_post_init_user(void) {
     #endif
     rgblight_layers_init();
     /* updateLayerDisplay(layer_state, true); */
-    uprintf("completed post_init_user");
+    dprint("completed post_init_user\n");
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {

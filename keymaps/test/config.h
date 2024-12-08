@@ -3,6 +3,9 @@
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 200U // Timeout window in ms in which the double tap can occur.
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP25 // Specify a optional status led by GPIO number which blinks when entering the bootloader
 
+#define PICO_XOSC_STARTUP_DELAY_MULTIPLIER 64
+#define RP2040_FLASH_GENERIC_03H
+
 #define MOUSEKEY_INTERVAL 16
 #define MOUSEKEY_MAX_SPEED 7
 #define MOUSEKEY_DELAY 0
