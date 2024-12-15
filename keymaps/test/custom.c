@@ -25,17 +25,23 @@ float leader_succeed_song[][2] = SONG(QWERTY_SOUND);
 
 #ifdef COMBO_ENABLE
 const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM fd_combo[] = {CKC_F, CKC_D, COMBO_END};
-const uint16_t PROGMEM lk_combo[] = {KC_L, CKC_K, COMBO_END};
+const uint16_t PROGMEM l0_fd_combo[] = {KC_F, KC_D, COMBO_END};
+const uint16_t PROGMEM l1_fd_combo[] = {CKC_F, CKC_D, COMBO_END};
+const uint16_t PROGMEM l0_lk_combo[] = {KC_L, KC_K, COMBO_END};
+const uint16_t PROGMEM l1_lk_combo[] = {KC_L, CKC_K, COMBO_END};
 combo_t key_combos[] = {
     COMBO(jk_combo, KC_ESC),
-    COMBO(fd_combo, QK_LEAD),
-    COMBO(lk_combo, QK_LEAD),
+    COMBO(l0_fd_combo, QK_LEAD),
+    COMBO(l1_fd_combo, QK_LEAD),
+    COMBO(l0_lk_combo, QK_LEAD),
+    COMBO(l1_lk_combo, QK_LEAD),
+    /* COMBO(ui_combo, QK_LEAD), */
 };
 #endif
 
 #ifdef TAP_DANCE_ENABLE
 tap_dance_action_t tap_dance_actions[] = {
+    [TD_F9] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F9, LYR_RGB),
     [TD_F10] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F10, LYR_RGB),
     [TD_F11] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F11, LYR_EXTRAKEYS),
     [TD_F12] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F12, LYR_DEFAULT),
@@ -110,13 +116,16 @@ void updateLayerDisplay(layer_state_t layer_state, bool force) {
     if (force || layer_state != prev_layer_state) {
         prev_layer_state = layer_state;
         switch (get_highest_layer(layer_state)) {
-            case 0:
+            case LYR_DEFAULT:
                 qp_drawtext(display, 0, LINENO(0, line_height),my_font, "DEFAULT  ");
                 break;
-            case 1:
+            case LYR_HRM:
+                qp_drawtext(display, 0, LINENO(0, line_height),my_font, "HRM MODS ");
+                break;
+            case LYR_EXTRAKEYS:
                 qp_drawtext(display, 0, LINENO(0, line_height),my_font, "EXTRAKEYS");
                 break;
-            case 2:
+            case LYR_RGB:
                 qp_drawtext(display, 0, LINENO(0, line_height),my_font, "CONTROL  ");
                 break;
             default:
@@ -264,8 +273,17 @@ void leader_end_user(void) {
         SEND_STRING("ra-int\\rrajagopala");
         did_succeed = true;
     }
-    if (leader_sequence_one_key(KC_F11)) {
-        layer_on(LYR_EXTRAKEYS);
+    if (leader_sequence_one_key(TD(TD_F9))) {
+        layer_invert(LYR_RGB);
+    }
+    if (leader_sequence_one_key(TD(TD_F10))) {
+        layer_invert(LYR_EXTRAKEYS);
+    }
+    if (leader_sequence_one_key(TD(TD_F11))) {
+        layer_invert(LYR_HRM);
+    }
+    if (leader_sequence_one_key(TD(TD_F12))) {
+        layer_clear();
     }
     if (leader_sequence_one_key(KC_MINS)) {
         SEND_STRING("->");
