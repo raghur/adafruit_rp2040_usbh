@@ -25,7 +25,7 @@ AUDIO_ENABLE=yes
 AUDIO_DRIVER=pwm_hardware
 
 #linux doesn't recognize...
-PROGRAMMABLE_BUTTON_ENABLE = no
+PROGRAMMABLE_BUTTON_ENABLE = yes
 # only for tiny kbds without dedicated esc
 GRAVE_ESC_ENABLE=no
 
