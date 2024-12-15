@@ -1,6 +1,7 @@
 #define LAYOUT_fullsize_ansi LAYOUT
 enum LAYERS {
     LYR_DEFAULT,
+    LYR_HRM,
     LYR_EXTRAKEYS,
     LYR_RGB
 };
@@ -8,6 +9,7 @@ enum LAYERS {
 #ifdef TAP_DANCE_ENABLE
 // Tap Dance keycodes
 enum td_keycodes {
+    TD_F9,
     TD_F10,
     TD_F11,
     TD_F12,
