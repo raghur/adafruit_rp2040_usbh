@@ -18,7 +18,6 @@
 const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM fd_combo[] = {KC_F, KC_D, COMBO_END};
 const uint16_t PROGMEM lk_combo[] = {KC_L, KC_K, COMBO_END};
-/* const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END}; */
 combo_t key_combos[] = {
     COMBO(jk_combo, KC_ESC),
     COMBO(fd_combo, QK_LEAD),
@@ -164,10 +163,14 @@ void init_quantum_painter(void);
 void updateLayerDisplay(layer_state_t layer, bool force);
 void updateModDisplay(void);
 void updateLeaderDisplay(bool isActive);
+void qp_sleep(void);
+void qp_wakeup(void);
 #ifndef QUANTUM_PAINTER_ENABLE
 void init_quantum_painter() {}
 void updateLayerDisplay(layer_state_t layer, bool force) {}
 void updateLeaderDisplay(bool isActive){}
+void qp_sleep(){}
+void qp_wakeup(){}
 #endif
 
 #ifdef QUANTUM_PAINTER_ENABLE
@@ -182,6 +185,8 @@ static uint8_t logoIsDisplayed = 1;
 void displayLogo(void);
 void hideLogo(void);
 
+void qp_sleep(){ qp_power(display, false); }
+void qp_wakeup() { qp_power(display, true); }
 void displayLogo() {
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
@@ -456,4 +461,14 @@ void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
 layer_state_t default_layer_state_set_user(layer_state_t state) {
     rgblight_default_layer_set(state);
     return state;
+}
+
+void suspend_power_down_user(void) {
+    // code will run multiple times while keyboard is suspended
+    qp_sleep();
+}
+
+void suspend_wakeup_init_user(void) {
+    // code will run on keyboard wakeup
+    qp_wakeup();
 }
