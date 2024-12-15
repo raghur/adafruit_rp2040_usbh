@@ -26,7 +26,7 @@ float leader_succeed_song[][2] = SONG(QWERTY_SOUND);
 #ifdef COMBO_ENABLE
 const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM fd_combo[] = {CKC_F, CKC_D, COMBO_END};
-const uint16_t PROGMEM lk_combo[] = {KC_L, KC_K, COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {KC_L, CKC_K, COMBO_END};
 combo_t key_combos[] = {
     COMBO(jk_combo, KC_ESC),
     COMBO(fd_combo, QK_LEAD),
@@ -356,5 +356,8 @@ void on_smtd_action(uint16_t keycode, smtd_action action, uint8_t tap_count) {
     switch (keycode) {
         SMTD_MT(CKC_D, KC_D, KC_LEFT_ALT)
         SMTD_MT(CKC_F, KC_F, KC_LEFT_CTRL)
+
+        SMTD_MT(CKC_J, KC_J, KC_RIGHT_CTRL)
+        SMTD_MT(CKC_K, KC_K, KC_RIGHT_ALT)
     }
 }
