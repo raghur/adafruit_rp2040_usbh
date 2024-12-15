@@ -83,3 +83,5 @@
 // custom
 #define ENABLE_LAYER_LED
 #endif
+
+#define MAX_DEFERRED_EXECUTORS 10

@@ -24,6 +24,17 @@ typedef struct {
     bool is_press_action;
     td_state_t state;
 } td_tap_t;
-
+enum custom_keycodes {
+    SMTD_KEYCODES_BEGIN = SAFE_RANGE,
+    CKC_A, // reads as C(ustom) + KC_A, but you may give any name here
+    CKC_S,
+    CKC_D,
+    CKC_F,
+    CKC_J,
+    CKC_K,
+    CKC_L,
+    CKC_SEMICOLON,
+    SMTD_KEYCODES_END,
+};
 
 #endif

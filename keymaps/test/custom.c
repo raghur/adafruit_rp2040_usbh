@@ -9,6 +9,7 @@
 /* }; */
 #include "monaspace.qff.h"
 #include "print.h"
+#include "sm_td/sm_td.h"
 #define MODS_SHIFT(v)  (v & MOD_MASK_SHIFT)
 #define MODS_CTRL(v)   (v & MOD_MASK_CTRL)
 #define MODS_ALT(v)    (v & MOD_MASK_ALT)
@@ -24,7 +25,7 @@ float leader_succeed_song[][2] = SONG(QWERTY_SOUND);
 
 #ifdef COMBO_ENABLE
 const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM fd_combo[] = {KC_F, KC_D, COMBO_END};
+const uint16_t PROGMEM fd_combo[] = {CKC_F, CKC_D, COMBO_END};
 const uint16_t PROGMEM lk_combo[] = {KC_L, KC_K, COMBO_END};
 combo_t key_combos[] = {
     COMBO(jk_combo, KC_ESC),
@@ -324,6 +325,14 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     updateLayerDisplay(state, false);
     return state;
 }
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!process_smtd(keycode, record)) {
+        return false;
+    }
+    return true;
+}
+
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     rgblight_layers_update_mods();
     updateModDisplay();
@@ -341,4 +350,11 @@ void suspend_power_down_user(void) {
 void suspend_wakeup_init_user(void) {
     // code will run on keyboard wakeup
     qp_wakeup();
+}
+
+void on_smtd_action(uint16_t keycode, smtd_action action, uint8_t tap_count) {
+    switch (keycode) {
+        SMTD_MT(CKC_D, KC_D, KC_LEFT_ALT)
+        SMTD_MT(CKC_F, KC_F, KC_LEFT_CTRL)
+    }
 }

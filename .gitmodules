@@ -4,3 +4,6 @@
 [submodule "lib/tinyusb"]
 	path = lib/tinyusb
 	url = https://github.com/hathach/tinyusb.git
+[submodule "keymaps/test/sm_td"]
+	path = keymaps/test/sm_td
+	url = https://github.com/stasmarkin/sm_td
