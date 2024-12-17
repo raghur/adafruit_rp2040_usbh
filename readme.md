@@ -69,3 +69,5 @@ make converter/adafruit_rp2040_usbh:_your_choice:uf2
 
 where `_your_choice` can be `default` forgeneric 104-key ANSI keyboard or `test` for my custom keymap
 
+# Annexure
+![Pi PICO pinout](https://microcontrollerslab.com/wp-content/uploads/2021/01/Raspberry-Pi-Pico-pinout-diagram.svg)
