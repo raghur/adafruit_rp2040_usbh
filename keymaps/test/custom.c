@@ -407,7 +407,9 @@ void leader_start_user(void) {
 
 void leader_end_user(void) {
     if (leader_sequence_timed_out()) {
+        #ifdef AUDIO_ENABLE
         PLAY_SONG(leader_timedout);
+        #endif
     }
 
     bool did_succeed = false;
@@ -456,7 +458,10 @@ void leader_end_user(void) {
         did_succeed = true;
     }
     if (did_succeed) {
+
+#ifdef AUDIO_ENABLE
      PLAY_SONG(leader_succeed_song);
+#endif
     }
 
     updateLeaderDisplay(false);
