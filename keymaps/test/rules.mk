@@ -21,6 +21,7 @@ DYNAMIC_MACRO_ENABLE=yes
 MOUSEKEY_ENABLE=yes
 
 # too much space
+# last known good audio - 0d9aee1c03
 AUDIO_ENABLE=yes
 AUDIO_DRIVER=pwm_hardware
 
