@@ -14,6 +14,14 @@
 #define MODS_ALT(v)    (v & MOD_MASK_ALT)
 #define MODS_GUI(v)    (v & MOD_MASK_GUI)
 
+#ifdef AUDIO_ENABLE
+
+float leader_timedout[][2] = SONG(CAPS_LOCK_OFF_SOUND);
+float leader_succeed_song[][2] = SONG(QWERTY_SOUND);
+#endif
+
+
+
 #ifdef COMBO_ENABLE
 const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM fd_combo[] = {KC_F, KC_D, COMBO_END};
@@ -254,6 +262,7 @@ void updateLeaderDisplay(bool isActive) {
 #endif
 
 #ifdef OLED_ENABLE
+// this section is defunct - replaced by QUANTUM_PAINTER_ENABLE above
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
@@ -394,30 +403,45 @@ void leader_start_user(void) {
 }
 
 void leader_end_user(void) {
+    if (leader_sequence_timed_out()) {
+        PLAY_SONG(leader_timedout);
+    }
+
+    bool did_succeed = false;
     if (leader_sequence_two_keys(KC_E, KC_E)) {
         SEND_STRING("raghu.rajagopalan@gmail.com");
+        did_succeed = true;
     } else if (leader_sequence_two_keys(KC_E, KC_S)) {
         SEND_STRING("raghu.nospam@gmail.com");
+        did_succeed = true;
     } else if (leader_sequence_two_keys(KC_E, KC_W)) {
         SEND_STRING("raghu.rajagopalan@rockwellautomation.com");
+        did_succeed = true;
+    } else if (leader_sequence_two_keys(KC_E, KC_D)) {
+        SEND_STRING("rockwellautomation.com");
+        did_succeed = true;
     }
     if (leader_sequence_one_key(KC_L)) {
         SEND_STRING("ra-int\\rrajagopala");
+        did_succeed = true;
     }
     if (leader_sequence_one_key(KC_F11)) {
         layer_on(LYR_EXTRAKEYS);
     }
     if (leader_sequence_one_key(KC_MINS)) {
         SEND_STRING("->");
+        did_succeed = true;
     }
     if (leader_sequence_one_key(KC_EQL)) {
         SEND_STRING("=>");
+        did_succeed = true;
     }
     if (leader_sequence_one_key(KC_M)) {
         register_code(KC_LGUI);
         register_code(KC_F12);
         unregister_code(KC_F12);
         unregister_code(KC_LGUI);
+        did_succeed = true;
     }
     if (leader_sequence_one_key(KC_V)) {
         register_code(KC_LALT);
@@ -426,7 +450,12 @@ void leader_end_user(void) {
         unregister_code(KC_V);
         unregister_code(KC_LCTL);
         unregister_code(KC_LALT);
+        did_succeed = true;
     }
+    if (did_succeed) {
+     PLAY_SONG(leader_succeed_song);
+    }
+
     updateLeaderDisplay(false);
 }
 
