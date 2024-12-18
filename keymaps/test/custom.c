@@ -30,135 +30,14 @@ combo_t key_combos[] = {
     COMBO(jk_combo, KC_ESC),
     COMBO(fd_combo, QK_LEAD),
     COMBO(lk_combo, QK_LEAD),
-    /* COMBO(ui_combo, QK_LEAD), */
 };
 #endif
 
 #ifdef TAP_DANCE_ENABLE
-// Function to determine the current tapdance state
-td_state_t cur_dance(tap_dance_state_t *state);
-
-// `finished` and `reset` functions for each tapdance keycode
-void bsls_finished(tap_dance_state_t *state, void *user_data);
-void bsls_reset(tap_dance_state_t *state, void *user_data);
-
-void shift_finished(tap_dance_state_t *state, void *user_data);
-void shift_reset(tap_dance_state_t *state, void *user_data);
-// Determine the current tap dance state
-td_state_t cur_dance(tap_dance_state_t *state) {
-    if (state->count == 1) {
-        if (!state->pressed) return TD_SINGLE_TAP;
-        else return TD_SINGLE_HOLD;
-    } else if (state->count >= 2) return TD_DOUBLE_TAP;
-    else return TD_UNKNOWN;
-}
-
-// Initialize tap structure associated with example tap dance key
-static td_tap_t bsls_tap_state = {
-    .is_press_action = true,
-    .state = TD_NONE
-};
-static td_tap_t capslock_tap_state = {
-    .is_press_action = true,
-    .state = TD_NONE
-};
-
-// Functions that control what our tap dance key does
-void bsls_finished(tap_dance_state_t *state, void *user_data) {
-    bsls_tap_state.state = cur_dance(state);
-    switch (bsls_tap_state.state) {
-        case TD_SINGLE_TAP:
-            tap_code(KC_BSLS);
-            break;
-        case TD_DOUBLE_TAP:
-            // Check to see if the layer is already set
-            if (layer_state_is(LYR_EXTRAKEYS)) {
-                // If already set, then switch it off
-                layer_off(LYR_EXTRAKEYS);
-            } else {
-                // If not already set, then switch the layer on
-                set_oneshot_layer(LYR_EXTRAKEYS, ONESHOT_START);
-            }
-            break;
-        default:
-            break;
-    }
-}
-
-void bsls_reset(tap_dance_state_t *state, void *user_data) {
-    // If the key was held down and now is released then switch off the layer
-    if (bsls_tap_state.state == TD_DOUBLE_TAP) {
-        clear_oneshot_layer_state(ONESHOT_PRESSED);
-    }
-    /* reset_tap_dance(state); */
-    bsls_tap_state.state = TD_NONE;
-}
-
-void capslock_finished(tap_dance_state_t *state, void *user_data) {
-    capslock_tap_state.state = cur_dance(state);
-    switch (capslock_tap_state.state) {
-        case TD_SINGLE_TAP:
-           register_code(KC_ESC);
-            break;
-
-        case TD_DOUBLE_TAP:
-            leader_start();
-            break;
-
-        case TD_SINGLE_HOLD:
-           register_code(KC_LCTL);
-           break;
-
-        default:
-            break;
-    }
-}
-
-void capslock_reset(tap_dance_state_t *state, void *user_data) {
-    switch (capslock_tap_state.state) {
-        case TD_SINGLE_TAP:
-            unregister_code(KC_ESC);
-            break;
-
-        case TD_DOUBLE_TAP:
-            /* leader_end(); */
-            break;
-
-        case TD_SINGLE_HOLD:
-            unregister_code(KC_LCTL);
-            break;
-        default: break;
-    }
-    /* reset_tap_dance(state); */
-    capslock_tap_state.state = TD_NONE;
-}
-
-void td_bsls(tap_dance_state_t *state, void *user_data) {
-    if (state->count > 1) {
-        leader_start();
-    } else {
-        tap_code(KC_BSLS);
-    }
-    reset_tap_dance(state);
-}
-// Associate our tap dance key with its functionality
-// Tap Dance definitions
 tap_dance_action_t tap_dance_actions[] = {
-    // Tap PS once for print screen, double tap to toggle mousekeys
-    [TD_PS_2] = ACTION_TAP_DANCE_LAYER_TOGGLE(KC_PSCR, 2),
-
-    // tap once for \|; double tap for QK_LEAD
-    [TD_BSLS] = ACTION_TAP_DANCE_FN(td_bsls),
-
-    // CapsLock -
-    //      tap once - Escape
-    //      tap twice - QK_LEAD
-    //      hold      - Control
-    [TD_CAPS_LDR] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, capslock_finished, capslock_reset),
-    [TD_F12] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F12, LYR_DEFAULT),
-    [TD_F11] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F11, LYR_EXTRAKEYS),
     [TD_F10] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F10, LYR_RGB),
-    [TD_WIN_TAB] = ACTION_TAP_DANCE_DOUBLE(KC_TAB, LGUI(KC_TAB)),
+    [TD_F11] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F11, LYR_EXTRAKEYS),
+    [TD_F12] = ACTION_TAP_DANCE_LAYER_MOVE(KC_F12, LYR_DEFAULT),
 };
 #endif
 
@@ -258,55 +137,6 @@ void updateModDisplay() {
 void updateLeaderDisplay(bool isActive) {
     char *text = isActive ? "LEADER...": "         ";
     qp_drawtext(display, 0, LINENO(2, line_height), my_font, text);
-}
-#endif
-
-#ifdef OLED_ENABLE
-// this section is defunct - replaced by QUANTUM_PAINTER_ENABLE above
-
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
-}
-bool oled_task_user(void) {
-
-    // Host Keyboard Layer Status
-    oled_write_P(PSTR("LYR: "), false);
-    oled_write_P(get_u8_str(get_highest_layer(layer_state), ' '), false);
-    switch (get_highest_layer(layer_state)) {
-        case 0:
-            oled_write_P(PSTR("DFLT\n"), false);
-            break;
-        case 1:
-            oled_write_P(PSTR("XTRA\n"), false);
-            break;
-        case 1:
-            oled_write_P(PSTR("CTRL\n"), false);
-            break;
-        default:
-            // Or use the write_ln shortcut over adding '\n' to the end of your string
-            // oled_write_ln_P(PSTR("NA"), false);
-            break;
-    }
-    oled_write_P(PSTR("\n"), false);
-
-    int mods =get_mods() || get_oneshot_mods();
-    if (MODS_SHIFT(mods)) {
-        oled_write_P(PSTR("SHIFT\n\n"), false);
-    } else {
-        oled_write_P(PSTR("\n\n"), false);
-    }
-    if (MODS_CTRL(mods)) {
-        oled_write_P(PSTR("CONTROL\n\n"), false);
-    } else {
-        oled_write_P(PSTR("\n\n"), false);
-    }
-    if (MODS_ALT(mods)) {
-        oled_write_P(PSTR("ALT\n\n"), false);
-    } else {
-        oled_write_P(PSTR("\n\n"), false);
-    }
-
-    return false;
 }
 #endif
 
