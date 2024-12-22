@@ -11,6 +11,29 @@
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 
+#define QP_7735spi
+/* #define QP_1106i2c */
+
+#ifdef QP_7735spi
+#define SPI_DRIVER SPID1
+#define SPI_SCK_PIN GP10
+#define SPI_MOSI_PIN GP11
+#define TFT_CS_PIN GP9
+#define TFT_DC_PIN GP12
+#define TFT_RST_PIN GP13
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 160
+/* #define BACKLIGHT_PWM_DRIVER PWMD0 */
+/* #define BACKLIGHT_PIN GP8 */
+/* #define BACKLIGHT_PWM_CHANNEL 1 */
+#endif
+
+#ifdef QP_1106i2c
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+#define I2C_ADDRESS 0x3c
+#endif
+
 #define TAPPING_TOGGLE 2
 #define LAYER_STATE_8BIT
 #define OLED_DISPLAY_128X64

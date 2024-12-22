@@ -61,16 +61,34 @@ void qp_wakeup(){}
 #endif
 
 #ifdef QUANTUM_PAINTER_ENABLE
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 64
-#define I2C_ADDRESS 0x3c
-#define LINENO(v,lh) (v*lh)
 static painter_device_t display;
 static painter_font_handle_t my_font;
 static int line_height;
 static uint8_t logoIsDisplayed = 1;
+#define LINENO(v,lh) (v*lh)
 void displayLogo(void);
 void hideLogo(void);
+
+void init_quantum_painter(void) {
+    #ifdef QP_1106i2c
+    display = qp_sh1106_make_i2c_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, I2C_ADDRESS);
+    #endif
+
+    #ifdef QP_7735spi
+    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 8, 0);
+    #endif
+
+    qp_init(display, QP_ROTATION_0);
+    qp_rect(display, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, 0, 0, 1);
+    qp_clear(display);
+    /* backlight_disable(); */
+    my_font = qp_load_font_mem(font_monaspace);
+    static const char *text = "QMK!";
+    int16_t width = qp_textwidth(my_font, text);
+    line_height = my_font->line_height;
+    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
+    qp_drawtext(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ");
+}
 
 void qp_sleep(){ qp_power(display, false); }
 void qp_wakeup() { qp_power(display, true); }
@@ -87,16 +105,6 @@ void hideLogo() {
         int16_t width = qp_textwidth(my_font, text);
         qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
     }
-}
-void init_quantum_painter(void) {
-    display = qp_sh1106_make_i2c_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, I2C_ADDRESS);
-    qp_init(display, QP_ROTATION_0);
-    my_font = qp_load_font_mem(font_monaspace);
-    static const char *text = "QMK!";
-    int16_t width = qp_textwidth(my_font, text);
-    line_height = my_font->line_height;
-    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
-    qp_drawtext(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ");
 }
 
 void updateLayerDisplay(layer_state_t layer_state, bool force) {
