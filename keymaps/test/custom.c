@@ -86,8 +86,9 @@ void init_quantum_painter(void) {
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
     line_height = my_font->line_height;
-    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
-    qp_drawtext(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ");
+    /* qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text); */
+    qp_drawtext_recolor(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text, 120, 75,100, 230,75,0);
+    qp_drawtext_recolor(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ", 230, 75,100, 230, 75, 0);
 }
 
 void qp_sleep(){ qp_power(display, false); }
