@@ -5,6 +5,7 @@
 #include "tusb.h"
 #include "gpio.h"
 #include "pio_usb.h"
+#include "gpio.h"
 #include "pio_usb_ll.h"
 #include "hardware/sync.h"
 // dummy implementation

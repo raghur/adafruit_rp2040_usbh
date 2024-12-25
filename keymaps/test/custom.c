@@ -52,12 +52,49 @@ void updateModDisplay(void);
 void updateLeaderDisplay(bool isActive);
 void qp_sleep(void);
 void qp_wakeup(void);
+void reset_idle_timer(void);
+void backlight_sleep(void);
+void backlight_wake(void);
+uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg);
 #ifndef QUANTUM_PAINTER_ENABLE
 void init_quantum_painter() {}
 void updateLayerDisplay(layer_state_t layer, bool force) {}
 void updateLeaderDisplay(bool isActive){}
 void qp_sleep(){}
 void qp_wakeup(){}
+void qp_updated() {}
+void reset_idle_timer(){}
+uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg ){}
+#endif
+
+#ifdef BACKLIGHT_LEVELS
+static uint8_t bl_level = BACKLIGHT_LEVELS;
+static uint8_t idle_periods = 0;
+static deferred_token bl_idle_token;
+#define CHECK_PERIOD 3000
+
+void backlight_sleep(){
+    bl_level = get_backlight_level();
+    backlight_disable();
+}
+void backlight_wake(){
+    if (is_backlight_enabled()) return;
+    backlight_enable();
+    backlight_level(bl_level);
+}
+void reset_idle_timer() {
+    idle_periods = 0;
+    backlight_wake();
+}
+uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg) {
+    if (!is_backlight_enabled()) return CHECK_PERIOD;
+    idle_periods++;
+    if ((CHECK_PERIOD * idle_periods) >= QUANTUM_PAINTER_DISPLAY_TIMEOUT) {
+        backlight_sleep();
+        return CHECK_PERIOD;
+    }
+    return CHECK_PERIOD;
+}
 #endif
 
 #ifdef QUANTUM_PAINTER_ENABLE
@@ -65,6 +102,8 @@ static painter_device_t display;
 static painter_font_handle_t my_font;
 static int line_height;
 static uint8_t logoIsDisplayed = 1;
+
+
 #define LINENO(v,lh) (v*lh)
 void displayLogo(void);
 void hideLogo(void);
@@ -76,12 +115,13 @@ void init_quantum_painter(void) {
 
     #ifdef QP_7735spi
     display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 8, 0);
+    backlight_wake();
+    bl_idle_token = defer_exec(CHECK_PERIOD, backlight_idle_sleep_checker, NULL);
     #endif
 
     qp_init(display, QP_ROTATION_0);
     qp_rect(display, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, 0, 0, 1);
     qp_clear(display);
-    /* backlight_disable(); */
     my_font = qp_load_font_mem(font_monaspace);
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
@@ -91,8 +131,12 @@ void init_quantum_painter(void) {
     qp_drawtext_recolor(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ", 230, 75,100, 230, 75, 0);
 }
 
-void qp_sleep(){ qp_power(display, false); }
-void qp_wakeup() { qp_power(display, true); }
+void qp_sleep(){
+    qp_power(display, false);
+}
+void qp_wakeup() {
+    qp_power(display, true);
+}
 void displayLogo() {
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
@@ -160,33 +204,7 @@ void rgblight_default_layer_set(layer_state_t state) {}
 #endif
 
 #ifdef RGBLIGHT_ENABLE
-void rgblight_layers_init() {
-    // Enable the LED layers
-    rgblight_layers = my_rgb_layers;
-    rgblight_set_effect_range(0, RGBLIGHT_LED_COUNT);
-}
-void rgblight_layers_update_mods() {
-    int mods = get_mods() | get_oneshot_mods();
-    if ( (mods  & MOD_MASK_SHIFT)
-        || (mods & MOD_MASK_ALT)
-        || (mods & MOD_MASK_GUI)
-        || (mods & MOD_MASK_CTRL)){
-        rgblight_set_layer_state(2, MODS_ALT(mods));
-        rgblight_set_layer_state(3, MODS_SHIFT(mods));
-        rgblight_set_layer_state(4, MODS_CTRL(mods));
-        rgblight_set_layer_state(5, MODS_GUI(mods));
 
-    } else {
-        rgblight_set_layer_state(2, 0);
-        rgblight_set_layer_state(3, 0);
-        rgblight_set_layer_state(4, 0);
-        rgblight_set_layer_state(5, 0);
-    }
-}
-void rgblight_default_layer_set(layer_state_t state) {
-    rgblight_set_layer_state(0, layer_state_cmp(state, LYR_EXTRAKEYS));
-    rgblight_set_layer_state(1, layer_state_cmp(state, LYR_RGB));
-}
 const rgblight_segment_t PROGMEM extra_layer[] = RGBLIGHT_LAYER_SEGMENTS(
     {8, 4, HSV_BLUE}       // Light 4 LEDs, starting with LED 6
 );
@@ -218,6 +236,33 @@ const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
     my_ctrl_layer,
     my_gui_layer
 );
+void rgblight_layers_init() {
+    // Enable the LED layers
+    rgblight_layers = my_rgb_layers;
+    rgblight_set_effect_range(0, RGBLIGHT_LED_COUNT);
+}
+void rgblight_layers_update_mods() {
+    int mods = get_mods() | get_oneshot_mods();
+    if ( (mods  & MOD_MASK_SHIFT)
+        || (mods & MOD_MASK_ALT)
+        || (mods & MOD_MASK_GUI)
+        || (mods & MOD_MASK_CTRL)){
+        rgblight_set_layer_state(2, MODS_ALT(mods));
+        rgblight_set_layer_state(3, MODS_SHIFT(mods));
+        rgblight_set_layer_state(4, MODS_CTRL(mods));
+        rgblight_set_layer_state(5, MODS_GUI(mods));
+
+    } else {
+        rgblight_set_layer_state(2, 0);
+        rgblight_set_layer_state(3, 0);
+        rgblight_set_layer_state(4, 0);
+        rgblight_set_layer_state(5, 0);
+    }
+}
+void rgblight_default_layer_set(layer_state_t state) {
+    rgblight_set_layer_state(0, layer_state_cmp(state, LYR_EXTRAKEYS));
+    rgblight_set_layer_state(1, layer_state_cmp(state, LYR_RGB));
+}
 #endif
 
 
@@ -330,6 +375,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
     rgblight_layers_update_mods();
     updateModDisplay();
+    if (record->event.pressed) {
+        reset_idle_timer();
+    }
 }
 layer_state_t default_layer_state_set_user(layer_state_t state) {
     rgblight_default_layer_set(state);

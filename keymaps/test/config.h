@@ -23,9 +23,14 @@
 #define TFT_RST_PIN GP13
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 160
-/* #define BACKLIGHT_PWM_DRIVER PWMD0 */
-/* #define BACKLIGHT_PIN GP8 */
-/* #define BACKLIGHT_PWM_CHANNEL 1 */
+
+/// use PWM on GP3 to drive backlight levels on ST7735 TFT LCD display
+#define BACKLIGHT_PIN GP29
+#define BACKLIGHT_PWM_DRIVER PWMD6
+#define BACKLIGHT_PWM_CHANNEL RP2040_PWM_CHANNEL_B
+/* #define BACKLIGHT_LEVELS 5 */
+/* #define BACKLIGHT_DEFAULT_LEVEL BACKLIGHT_LEVELS */
+/* #define BACKLIGHT_ON_STATE 1 */
 #endif
 
 #ifdef QP_1106i2c
@@ -66,13 +71,13 @@
 #define RETRO_TAPPING
 
 #ifdef RGBLIGHT_ENABLE
-// #define WS2812_PIO_USE_PIO1
+#define WS2812_PIO_USE_PIO1
 
 // rgb layers
 // underglow related
 #define RGBLIGHT_LAYERS
 #define RGBLIGHT_SLEEP
-#define RGBLIGHT_LED_COUNT 20
+#define RGBLIGHT_LED_COUNT 1
 #define RGBLIGHT_LIMIT_VAL 180
 #define RGBLIGHT_MAX_LAYERS 8
 
@@ -91,8 +96,7 @@
 #define RGBLIGHT_LAYERS_OVERRIDE_RGB_OFF
 #define RGBLIGHT_LAYERS_RETAIN_VAL
 
-// GPIO PIN (GP2)2 (physical pin 4)
-#define WS2812_DI_PIN 2
+#define WS2812_DI_PIN GP16
 /* #define USE_GET_MILLISECOND_TIMER */
 
 //layer blink

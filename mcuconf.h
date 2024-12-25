@@ -10,6 +10,11 @@
 
 #undef RP_CORE1_START
 #define RP_CORE1_START TRUE
+// backlight on PWM6B - GP29
+#undef RP_PWM_USE_PWM6
+#define RP_PWM_USE_PWM6 TRUE
+
+// audio on GP15 - PWM7B
 #undef RP_PWM_USE_PWM7
 #define RP_PWM_USE_PWM7 TRUE
 
