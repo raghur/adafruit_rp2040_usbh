@@ -62,15 +62,12 @@ void updateLayerDisplay(layer_state_t layer, bool force) {}
 void updateLeaderDisplay(bool isActive){}
 void qp_sleep(){}
 void qp_wakeup(){}
-void qp_updated() {}
-void reset_idle_timer(){}
-uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg ){}
 #endif
 
-#ifdef BACKLIGHT_LEVELS
+static deferred_token bl_idle_token;
+#ifdef BACKLIGHT_ENABLE
 static uint8_t bl_level = BACKLIGHT_LEVELS;
 static uint8_t idle_periods = 0;
-static deferred_token bl_idle_token;
 #define CHECK_PERIOD 3000
 
 void backlight_sleep(){
@@ -95,6 +92,12 @@ uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg) {
     }
     return CHECK_PERIOD;
 }
+#else
+#define CHECK_PERIOD 0
+void backlight_wake() { }
+void backlight_sleep() { }
+void reset_idle_timer() { }
+uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg ){ return 0;}
 #endif
 
 #ifdef QUANTUM_PAINTER_ENABLE
@@ -114,7 +117,7 @@ void init_quantum_painter(void) {
     #endif
 
     #ifdef QP_7735spi
-    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 8, 0);
+    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 2, 0);
     backlight_wake();
     bl_idle_token = defer_exec(CHECK_PERIOD, backlight_idle_sleep_checker, NULL);
     #endif
@@ -351,21 +354,24 @@ void leader_end_user(void) {
 #endif
 
 void keyboard_post_init_kb(void) {
+
+    #ifdef CONSOLE_ENABLE
+        // Customise these values to desired behaviour
+        debug_enable=true;
+        debug_keyboard=true;
+        //debug_mouse=true;
+    #endif
+    dprintf("started post_init_kb\n");
     init_quantum_painter();
     keyboard_post_init_user();
 }
 
 void keyboard_post_init_user(void) {
 
-    #ifdef CONSOLE_ENABLE
-        // Customise these values to desired behaviour
-        debug_enable=true;
-        /* debug_keyboard=true; */
-        //debug_mouse=true;
-    #endif
+    dprintf("started post_init_user\n");
     rgblight_layers_init();
     /* updateLayerDisplay(layer_state, true); */
-    uprintf("completed post_init_user");
+    dprintf("completed post_init_user\n");
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
