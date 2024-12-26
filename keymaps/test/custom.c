@@ -46,7 +46,8 @@ tap_dance_action_t tap_dance_actions[] = {
 static uint8_t prev_mod_state;
 static layer_state_t prev_layer_state;
 
-void init_quantum_painter(void);
+void qp_connect(void);
+void qp_welcome(void);
 void updateLayerDisplay(layer_state_t layer, bool force);
 void updateModDisplay(void);
 void updateLeaderDisplay(bool isActive);
@@ -57,7 +58,8 @@ void backlight_sleep(void);
 void backlight_wake(void);
 uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg);
 #ifndef QUANTUM_PAINTER_ENABLE
-void init_quantum_painter() {}
+void qp_connect() {}
+void qp_welcome() {}
 void updateLayerDisplay(layer_state_t layer, bool force) {}
 void updateLeaderDisplay(bool isActive){}
 void qp_sleep(){}
@@ -110,18 +112,18 @@ static uint8_t logoIsDisplayed = 1;
 #define LINENO(v,lh) (v*lh)
 void displayLogo(void);
 void hideLogo(void);
-
-void init_quantum_painter(void) {
+void qp_connect() {
     #ifdef QP_1106i2c
     display = qp_sh1106_make_i2c_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, I2C_ADDRESS);
     #endif
 
     #ifdef QP_7735spi
-    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 2, 0);
-    backlight_wake();
+    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 128, 0);
     bl_idle_token = defer_exec(CHECK_PERIOD, backlight_idle_sleep_checker, NULL);
     #endif
-
+}
+void qp_welcome(void) {
+    backlight_wake();
     qp_init(display, QP_ROTATION_0);
     qp_rect(display, 0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, 0, 0, 1);
     qp_clear(display);
@@ -354,7 +356,7 @@ void leader_end_user(void) {
 #endif
 
 void keyboard_post_init_kb(void) {
-
+    keyboard_post_init_user();
     #ifdef CONSOLE_ENABLE
         // Customise these values to desired behaviour
         debug_enable=true;
@@ -362,13 +364,18 @@ void keyboard_post_init_kb(void) {
         //debug_mouse=true;
     #endif
     dprintf("started post_init_kb\n");
-    init_quantum_painter();
-    keyboard_post_init_user();
 }
 
+uint32_t qp_start_job(uint32_t trigger_time, void *cb_arg);
+uint32_t qp_start_job(uint32_t trigger_time, void *cb_arg) {
+    qp_connect();
+    qp_welcome();
+    return 0;
+}
 void keyboard_post_init_user(void) {
 
     dprintf("started post_init_user\n");
+    defer_exec(5000, qp_start_job, NULL);
     rgblight_layers_init();
     /* updateLayerDisplay(layer_state, true); */
     dprintf("completed post_init_user\n");
