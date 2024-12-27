@@ -23,6 +23,7 @@ void c1_usbh(void) {
     pio_cfg.skip_alarm_pool         = true;
 
     #ifdef BOOST_CONVERTER_PIN
+    pio_cfg.pin_dp                  = GP16;
     // only for adafruit feather that has a 5v/1amp boost converter that needs to be enabled
     // via sending 1 on GP18
     pio_cfg.pin_dp                   = GP16;

@@ -106,7 +106,7 @@ uint32_t backlight_idle_sleep_checker(uint32_t trigger_time, void *cb_arg ){ ret
 static painter_device_t display;
 static painter_font_handle_t my_font;
 static int line_height;
-static uint8_t logoIsDisplayed = 1;
+static uint8_t logoIsDisplayed = 0;
 
 
 #define LINENO(v,lh) (v*lh)
@@ -118,7 +118,7 @@ void qp_connect() {
     #endif
 
     #ifdef QP_7735spi
-    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 128, 0);
+    display = qp_st7735_make_spi_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN, 2, 0);
     bl_idle_token = defer_exec(CHECK_PERIOD, backlight_idle_sleep_checker, NULL);
     #endif
 }
@@ -134,6 +134,7 @@ void qp_welcome(void) {
     /* qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text); */
     qp_drawtext_recolor(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text, 120, 75,100, 230,75,0);
     qp_drawtext_recolor(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ", 230, 75,100, 230, 75, 0);
+    logoIsDisplayed = 1;
 }
 
 void qp_sleep(){
@@ -356,13 +357,13 @@ void leader_end_user(void) {
 #endif
 
 void keyboard_post_init_kb(void) {
-    keyboard_post_init_user();
     #ifdef CONSOLE_ENABLE
         // Customise these values to desired behaviour
         debug_enable=true;
         debug_keyboard=true;
         //debug_mouse=true;
     #endif
+    keyboard_post_init_user();
     dprintf("started post_init_kb\n");
 }
 
@@ -376,6 +377,8 @@ void keyboard_post_init_user(void) {
 
     dprintf("started post_init_user\n");
     defer_exec(5000, qp_start_job, NULL);
+    /* qp_connect(); */
+    /* qp_welcome(); */
     rgblight_layers_init();
     /* updateLayerDisplay(layer_state, true); */
     dprintf("completed post_init_user\n");
