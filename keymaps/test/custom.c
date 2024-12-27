@@ -364,7 +364,7 @@ void keyboard_post_init_kb(void) {
         //debug_mouse=true;
     #endif
     keyboard_post_init_user();
-    dprintf("started post_init_kb\n");
+    dprint("started post_init_kb\n");
 }
 
 uint32_t qp_start_job(uint32_t trigger_time, void *cb_arg);
@@ -375,13 +375,13 @@ uint32_t qp_start_job(uint32_t trigger_time, void *cb_arg) {
 }
 void keyboard_post_init_user(void) {
 
-    dprintf("started post_init_user\n");
+    dprint("started post_init_user\n");
     defer_exec(5000, qp_start_job, NULL);
     /* qp_connect(); */
     /* qp_welcome(); */
     rgblight_layers_init();
     /* updateLayerDisplay(layer_state, true); */
-    dprintf("completed post_init_user\n");
+    dprint("completed post_init_user\n");
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {

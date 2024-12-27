@@ -1,6 +1,6 @@
 {
     "manufacturer": "RaspberryPi",
-    "keyboard_name": "Rp2040 USB Host",
+    "keyboard_name": "Rp2040 USB Host (st7735)",
     "maintainer": "sekigon-gonnoc",
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",
@@ -68,7 +68,7 @@
     "processor": "RP2040",
     "usb": {
         "vid": "0x0554",
-        "pid": "0x1005",
+        "pid": "0x1006",
         "device_version": "1.0.0"
     },
     "layouts": {
