@@ -15,7 +15,9 @@ Need help with the following niggles:
 3. Can/maybe interferes with the host system suspend/wakeup - though I think that might be a weird USB enumeration issue with pi picos.
     - Not sure about this since sometimes everything works flawlessly vs other time my system won't go to sleep and there's 
     errors in journal about USB.
-
+4. Also conflicts with DMA channel - so anything in QMK that uses DMA indirectly will likely break - ex SPI; 
+    - ChibiOs has its own tracking of DMA channels but PIO USB uses rp sdk directly.
+    - Workaround - set DMA channel to 11 in `c1_usbh.c`.Obviously not foolproof as ChibiOs could still go ahead and allocate it.
 
 # USB-to-USB convertor using [ Raspberry Pi Pico](https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#pico-1-technical-specification)
 
@@ -30,36 +32,23 @@ This uses [Sekigon's Keyboard Quantizer mini-full branch](https://github.com/sek
 
 Code in the repo works directly with USB host pin DP+ on GPIO1
 
-If you're using an adafruit feather, then change as below
-```
-// Initialize USB host stack on core1
-void c1_usbh(void) {
-    pio_usb_configuration_t pio_cfg = PIO_USB_DEFAULT_CONFIG;
-    pio_cfg.pin_dp                  = 16;
-    // pio_cfg.extra_error_retry_count = 10;
-    pio_cfg.skip_alarm_pool         = true;
-    tuh_configure(1, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &pio_cfg);
-
-    gpio_init(18);
-    gpio_set_dir(18, GPIO_OUT);
-    gpio_put(18, 1);
-
-    tuh_init(1);
-    c1_start_timer();
-}
+If you're using an adafruit feather USB Host, then uncomment
+```c
+//uncomment next line if using adafruit feather usb host
+// #define BOOST_CONVERTER_PIN GP18
 
 ```
 
 ## Available keymaps
 
-- test - my (admittedly badly named) keymap I use 
+- test - my (admittedly poorly named) keymap
 - default - default Generic ANSI 104 keys.
 
 ## How to use this repository
 
 After [setup your qmk environment](https://github.com/qmk/qmk_firmware/blob/master/docs/newbs_getting_started.md), clone this repository to `keyboards/converter` then run
 
-```
+```shell
 git clone https://github.com/whyaaronbailey/adafruitrp2040_usbh.git _your_qmk_repo/keyboards/converter/adafruit_rp2040_usbh
 cd _your_qmk_repo/keyboards/converter/adafruit_rp2040_usbh
    git submodule update --init --recursive
