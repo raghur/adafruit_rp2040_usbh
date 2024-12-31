@@ -90,7 +90,7 @@ void hideLogo() {
 }
 void init_quantum_painter(void) {
     display = qp_sh1106_make_i2c_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, I2C_ADDRESS);
-    qp_init(display, QP_ROTATION_0);
+    qp_init(display, QP_ROTATION);
     my_font = qp_load_font_mem(font_monaspace);
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
