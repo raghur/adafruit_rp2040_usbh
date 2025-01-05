@@ -68,34 +68,41 @@ void qp_wakeup(){}
 static painter_device_t display;
 static painter_font_handle_t my_font;
 static int line_height;
-static uint8_t logoIsDisplayed = 1;
+static uint8_t logoIsDisplayed = 0;
 void displayLogo(void);
 void hideLogo(void);
 
 void qp_sleep(){ qp_power(display, false); }
 void qp_wakeup() { qp_power(display, true); }
 void displayLogo() {
+    if (logoIsDisplayed) return;
+    logoIsDisplayed = 1;
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
-    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
+    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, DISPLAY_HEIGHT - line_height * 2, my_font, text);
+    const char *version = PRODUCT;
+    char *ptr = strchr(version, '(');
+    if (ptr)
+        qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, ptr);
+    else
+        qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, version);
 }
 
 void hideLogo() {
-    if (logoIsDisplayed) {
-        logoIsDisplayed = 0;
-        static const char *text = "    ";
-        int16_t width = qp_textwidth(my_font, text);
-        qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
-    }
+    if (!logoIsDisplayed) return;
+    logoIsDisplayed = 0;
+    static const char *text = "    ";
+    int16_t width = qp_textwidth(my_font, text);
+    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, DISPLAY_HEIGHT - line_height*2, my_font, text);
+    const char *emptyline = "                             ";
+    qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, emptyline);
 }
 void init_quantum_painter(void) {
     display = qp_sh1106_make_i2c_device(DISPLAY_WIDTH, DISPLAY_HEIGHT, I2C_ADDRESS);
     qp_init(display, QP_ROTATION);
     my_font = qp_load_font_mem(font_monaspace);
-    static const char *text = "QMK!";
-    int16_t width = qp_textwidth(my_font, text);
     line_height = my_font->line_height;
-    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, text);
+    displayLogo();
     qp_drawtext(display, 0, LINENO(0, line_height), my_font, "DEFAULT  ");
 }
 
