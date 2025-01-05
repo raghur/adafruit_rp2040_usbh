@@ -79,11 +79,11 @@ void displayLogo() {
     logoIsDisplayed = 1;
     static const char *text = "QMK!";
     int16_t width = qp_textwidth(my_font, text);
-    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, DISPLAY_HEIGHT - line_height * 2, my_font, text);
+    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height) / 2, my_font, text);
     const char *version = PRODUCT;
-    char *ptr = strchr(version, '(');
+    char *ptr = strchr(version, '.');
     if (ptr)
-        qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, ptr);
+        qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, ++ptr);
     else
         qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, version);
 }
@@ -91,10 +91,9 @@ void displayLogo() {
 void hideLogo() {
     if (!logoIsDisplayed) return;
     logoIsDisplayed = 0;
-    static const char *text = "    ";
-    int16_t width = qp_textwidth(my_font, text);
-    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, DISPLAY_HEIGHT - line_height*2, my_font, text);
     const char *emptyline = "                             ";
+    int16_t width = qp_textwidth(my_font, emptyline);
+    qp_drawtext(display, (DISPLAY_WIDTH - width)/2, (DISPLAY_HEIGHT - line_height)/2, my_font, emptyline);
     qp_drawtext(display, 0, DISPLAY_HEIGHT - line_height, my_font, emptyline);
 }
 void init_quantum_painter(void) {
