@@ -1,6 +1,6 @@
 {
     "manufacturer": "RaspberryPi",
-    "keyboard_name": "QMK RP2040 Converter (home-row-mods)",
+    "keyboard_name": "QMK RP2040 Converter.home-row-mods",
     "maintainer": "sekigon-gonnoc",
     "bootloader": "rp2040",
     "diode_direction": "COL2ROW",
