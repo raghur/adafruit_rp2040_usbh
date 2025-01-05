@@ -10,6 +10,7 @@
 #include "monaspace.qff.h"
 #include "print.h"
 #include "sm_td/sm_td.h"
+/* #include "eeprom_driver.h" */
 #define MODS_SHIFT(v)  (v & MOD_MASK_SHIFT)
 #define MODS_CTRL(v)   (v & MOD_MASK_CTRL)
 #define MODS_ALT(v)    (v & MOD_MASK_ALT)
@@ -322,6 +323,7 @@ void leader_end_user(void) {
 #endif
 
 void keyboard_post_init_kb(void) {
+    /* eeprom_driver_init(); */
     init_quantum_painter();
     keyboard_post_init_user();
 }

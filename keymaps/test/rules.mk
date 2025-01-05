@@ -9,6 +9,8 @@ SRC += monaspace.qff.c
 LEADER_ENABLE=yes
 RGBLIGHT_ENABLE=no
 WS2812_DRIVER=vendor
+# fails after writing
+# EEPROM_DRIVER=vendor
 
 INTROSPECTION_KEYMAP_C = custom.c
 
